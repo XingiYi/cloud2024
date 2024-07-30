@@ -1,0 +1,104 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: cloud-consumer-order
+  ####Spring Cloud Consul for Service Discovery
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        prefer-ip-address: true #优先使用服务ip进行注册
+        service-name: ${spring.application.name}
+    #openfeign
+    openfeign:
+      client:
+        config:
+          default:
+            #连接超时时间
+            connect-timeout: 2000
+            #读取超时时间
+            read-timeout: 2000
+      #请求换成httpClient5
+      httpclient:
+        hc5:
+          enabled: true
+      #压缩调用
+      compression:
+        request:
+          enabled: true
+          min-request-size: 2048
+          mime-types: text/xml,application/xml,application/json
+        response:
+          enabled: true
+      circuitbreaker:
+        enabled: true
+        group:
+          enabled: true
+#压缩调用
+logging:
+  level:
+    com.atguigu.cloud.apis:
+      cloud-payment-service: debug
+#resilience4j:
+#  circuitbreaker:
+#    configs:
+#      default:
+#        failure-rate-threshold: 50
+#        sliding-window-type: count_based
+#        sliding-window-size: 6
+#        minimum-number-of-calls: 6
+#        automatic-transition-from-open-to-half-open-enabled: true
+#        wait-duration-in-open-state: 5s
+#        permitted-number-of-calls-in-half-open-state: 2
+#        record-exceptions:
+#          - java.lang.Exception
+#    instances:
+#      cloud-payment-service:
+#        base-config: default
+
+#resilience4j:
+#  bulkhead:
+#    configs:
+#      default:
+#        max-concurrent-calls: 2
+#        max-wait-duration: 1s
+#    instances:
+#      cloud-payment-service:
+#        base-config: default
+#
+#  timelimiter:
+#    configs:
+#      default:
+#        timeout-duration: 10s
+
+#resilience4j:
+#  timelimiter:
+#    configs:
+#      default:
+#        timeout-duration: 10s
+#
+#  thread-pool-bulkhead:
+#    instances:
+#      cloud-payment-service:
+#        base-config: default
+#    configs:
+#      default:
+#        core-thread-pool-size: 1
+#        max-thread-pool-size: 1
+#        queue-capacity: 1
+
+resilience4j:
+  ratelimiter:
+    instances:
+      cloud-payment-service:
+        base-config: default
+    configs:
+      default:
+        limit-for-period: 2
+        limit-refresh-period: 1s
+        timeout-duration: 1s
+
+
